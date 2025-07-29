@@ -5,6 +5,8 @@ import com.godiapps.places.repository.PlaceRepository;
 import com.godiapps.places.service.account.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,6 +18,10 @@ public class PlaceServiceImpl extends PlaceService {
     public Place addNewPlace(Place place){
 
         return _placeRepository.save(place);
+    }
+
+    public List<Place> getPlaces(){
+        return _placeRepository.findAll();
     }
 
     public Optional<Place> findPlaceById(Long id){

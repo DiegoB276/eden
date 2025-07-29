@@ -26,10 +26,13 @@ public class User {
     private String country;
     private String profileImage;
 
+
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "account_id")
     private Account account;
 
+    @JsonIgnore
     @OneToMany(
             mappedBy = "user",
             cascade = CascadeType.ALL,

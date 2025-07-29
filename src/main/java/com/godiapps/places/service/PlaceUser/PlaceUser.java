@@ -41,6 +41,7 @@ public class PlaceUser {
         place.setCity(placeDto.getCity());
         place.setCreationDate(LocalDateTime.now());
         place.setCountry(placeDto.getCountry());
+        place.setImages(placeDto.getImages());
         place.setLatitude(placeDto.getLatitude());
         place.setLongitude(placeDto.getLongitude());
         return place;

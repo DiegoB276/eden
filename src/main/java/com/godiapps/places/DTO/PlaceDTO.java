@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -16,4 +18,5 @@ public class PlaceDTO {
     private String country;
     private double latitude;
     private double longitude;
+    private List<String> images;
 }

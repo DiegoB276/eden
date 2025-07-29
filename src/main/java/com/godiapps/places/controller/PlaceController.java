@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -36,9 +37,17 @@ public class PlaceController {
         return;
     }
 
+    @Operation(summary = "Obtener todos los lugares")
+    @GetMapping
+    public List<Place> getAllPlaces(){
+        return _placeService.getPlaces();
+    }
+
     @Operation(summary = "Buscar luar por ID")
     @GetMapping("/{placeId}")
     public ResponseEntity<Optional<Place>> findPlaceById(@PathVariable Long placeId){
         return ResponseEntity.ok(_placeService.findPlaceById(placeId));
     }
+
+
 }

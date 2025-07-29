@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name="tbl_places")
@@ -27,8 +28,8 @@ public class Place {
     private String country;
     private double latitude;
     private double longitude;
+    private List<String> images;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(
             name = "user_id"
