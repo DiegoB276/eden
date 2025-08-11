@@ -1,26 +1,18 @@
-package com.godiapps.places.entity;
+package com.godiapps.places.DTO;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
-@Entity
-@Table(name="tbl_places")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class Place {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long placeId;
+public class PlaceResponseDTO {
     private String name;
     private String description;
     private LocalDateTime creationDate;
@@ -31,12 +23,8 @@ public class Place {
     private int timeToArrive;
     private double latitude;
     private double longitude;
+    private String placeUserName;
+    private String placeUserProfileImage;
     private List<String> images;
     private List<String> categories;
-
-    @ManyToOne
-    @JoinColumn(
-            name = "user_id"
-    )
-    private User user;
 }

@@ -1,6 +1,7 @@
 package com.godiapps.places.service.place;
 
 
+import com.godiapps.places.DTO.PlaceResponseDTO;
 import com.godiapps.places.entity.Place;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public abstract class PlaceService {
     public abstract Place addNewPlace(Place place);
 
     //TODO: Find all places
-    public abstract List<Place> getPlaces();
+    public abstract List<PlaceResponseDTO> getPlaces();
 
     //TODO: find a place by id
     public abstract Optional<Place> findPlaceById(Long id);

@@ -1,6 +1,7 @@
 package com.godiapps.places.service.PlaceUser;
 
-import com.godiapps.places.DTO.PlaceDTO;
+import com.godiapps.places.DTO.PlaceRequestDTO;
+import com.godiapps.places.DTO.PlaceResponseDTO;
 import com.godiapps.places.entity.Place;
 import com.godiapps.places.entity.User;
 import com.godiapps.places.service.place.PlaceService;
@@ -20,30 +21,50 @@ public class PlaceUser {
     @Autowired
     private PlaceService _placeService;
 
-    public Boolean CreatePlaceWithUser(PlaceDTO placeDto, Long userId){
+    public PlaceResponseDTO CreatePlaceWithUser(PlaceRequestDTO placeRequestDto, Long userId){
         Optional<User> user = _userService.findById(userId);
         if (user.isPresent()){
-            Place placeToSave =  _placeService.addNewPlace(formatPlaceDTO(placeDto, new Place()));
-            System.out.println("Lugar antes de guardarse: " + placeToSave.getName());
+            Place placeToSave =  _placeService.addNewPlace(formatDtoToPlace(placeRequestDto, new Place()));
             if (_placeService.findPlaceById(placeToSave.getPlaceId()).isPresent()){
                 placeToSave.setUser(user.get());
                 _placeService.addNewPlace(placeToSave);
-                System.out.println("Lugar antes de guardarse: " + placeToSave.getName());
-                return true;
+                return PlaceResponseDTO.builder()
+                        .name(placeToSave.getName())
+                        .description(placeToSave.getDescription())
+                        .country(placeToSave.getCountry())
+                        .city(placeToSave.getCity())
+                        .creationDate(LocalDateTime.now())
+                        .images(placeToSave.getImages())
+                        .categories(placeToSave.getCategories())
+                        .ranting(placeToSave.getRanting())
+                        .timeToArrive(placeToSave.getTimeToArrive())
+                        .canCarArrived(placeToSave.isCanCarArrived())
+                        .latitude(placeToSave.getLatitude())
+                        .longitude(placeToSave.getLongitude())
+                        .placeUserName(placeToSave.getUser().getName())
+                        .placeUserProfileImage(placeToSave.getUser().getProfileImage() )
+                        .build();
+
             }
         }
-        return false;
+        return null;
     }
 
-    public Place formatPlaceDTO(PlaceDTO placeDto, Place place){
-        place.setName(placeDto.getName());
-        place.setDescription(placeDto.getDescription());
-        place.setCity(placeDto.getCity());
-        place.setCreationDate(LocalDateTime.now());
-        place.setCountry(placeDto.getCountry());
-        place.setImages(placeDto.getImages());
-        place.setLatitude(placeDto.getLatitude());
-        place.setLongitude(placeDto.getLongitude());
-        return place;
+    public Place formatDtoToPlace(PlaceRequestDTO placeRequestDto, Place place){
+        return  Place.builder()
+                .name(placeRequestDto.getName())
+                .description(placeRequestDto.getDescription())
+                .country(placeRequestDto.getCountry())
+                .city(placeRequestDto.getCity())
+                .creationDate(LocalDateTime.now())
+                .images(placeRequestDto.getImages())
+                .categories(placeRequestDto.getCategories())
+                .ranting(placeRequestDto.getRanting())
+                .canCarArrived(placeRequestDto.isCanCarArrived())
+                .timeToArrive(placeRequestDto.getTimeToArrive())
+                .latitude(placeRequestDto.getLatitude())
+                .longitude(placeRequestDto.getLongitude())
+                .build();
+
     }
 }

@@ -1,6 +1,7 @@
 package com.godiapps.places.controller;
 
-import com.godiapps.places.DTO.PlaceDTO;
+import com.godiapps.places.DTO.PlaceRequestDTO;
+import com.godiapps.places.DTO.PlaceResponseDTO;
 import com.godiapps.places.entity.Place;
 import com.godiapps.places.service.PlaceUser.PlaceUser;
 import com.godiapps.places.service.place.PlaceService;
@@ -28,18 +29,13 @@ public class PlaceController {
 
     @Operation(summary = "Registrar un lugar nuevo")
     @PostMapping("/create/{userId}")
-    public void CreatePlaceWithUser(@RequestBody PlaceDTO placeDTO, @PathVariable Long userId){
-        if (_placeUser.CreatePlaceWithUser(placeDTO, userId)){
-            System.out.println("Lugar creado y asociado a un usuario");
-            return;
-        }
-        System.out.println("Fallo al agregar el lugar!!");
-        return;
+    public ResponseEntity<PlaceResponseDTO> CreatePlaceWithUser(@RequestBody PlaceRequestDTO placeRequestDTO, @PathVariable Long userId){
+        return ResponseEntity.ok(_placeUser.CreatePlaceWithUser(placeRequestDTO, userId));
     }
 
     @Operation(summary = "Obtener todos los lugares")
     @GetMapping
-    public List<Place> getAllPlaces(){
+    public List<PlaceResponseDTO> getAllPlaces(){
         return _placeService.getPlaces();
     }
 
