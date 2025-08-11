@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @Controller
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 @Tag(name = "Usuarios", description = "Acciones para la gestion de los usuarios.")
 public class UserController {
 
@@ -26,6 +26,7 @@ public class UserController {
     @Autowired
     private UserAccountService _userAccService;
 
+    //OPEN TO USER.
     @Operation(summary = "Registrar un nuevo usuario")
     @PostMapping("/create/{email}")
     public void createUser(@PathVariable String email, @RequestBody User user){
@@ -37,6 +38,7 @@ public class UserController {
         return;
     }
 
+    //OPEN TO USERS.
     @Operation(summary = "Buscar un usuario por ID")
     @GetMapping("/{id}")
     public ResponseEntity<Optional<User>> findUserById(@PathVariable Long id){

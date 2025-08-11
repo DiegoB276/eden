@@ -16,25 +16,28 @@ import java.util.Set;
 
 @Controller
 @RestController
-@RequestMapping("/account")
+@RequestMapping("/api/account")
 @Tag(name = "Cuentas de Usuario", description = "Endpoints relacionados con cuentas de usuario.")
 public class AccountController {
 
     @Autowired
     private AccountService _accountService;
 
+    //OPEN TO EVERYBODY.
     @Operation(summary = "Registrar una nueva cuenta")
     @PostMapping("/create")
     public ResponseEntity<AccountResponseDTO> createAccount(@RequestBody AccountRequestDTO account){
             return ResponseEntity.ok(_accountService.addNewAccount(account));
     }
 
+    //OPEN TO USERS
     @Operation(summary = "Buscar cuenta por ID")
     @GetMapping("/find/{id}")
     public ResponseEntity<Optional<Account>> findById(@PathVariable Long id){
         return ResponseEntity.ok(_accountService.findAccountById(id));
     }
 
+    //OPEN TO USERS
     @Operation(summary = "Eliminar cuenta")
     @DeleteMapping("/delete/{id}")
     public void deleteAccount(@PathVariable Long id){
@@ -46,9 +49,4 @@ public class AccountController {
         return;
     }
 
-
-    @DeleteMapping("deleteAfter")
-    public void deleteAfterTime(){
-        _accountService.deleteAccountWithTime();
-    }
 }

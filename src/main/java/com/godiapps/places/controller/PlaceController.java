@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Controller
 @RestController
-@RequestMapping("/places")
+@RequestMapping("/api/places")
 @Tag(name = "Lugares", description = "Acciones relacionadas a Lugares.")
 public class PlaceController {
 
@@ -27,17 +27,20 @@ public class PlaceController {
     @Autowired
     private PlaceService _placeService;
 
+    //OPEN TO USERS
     @Operation(summary = "Registrar un lugar nuevo")
     @PostMapping("/create/{userId}")
     public ResponseEntity<PlaceResponseDTO> CreatePlaceWithUser(@RequestBody PlaceRequestDTO placeRequestDTO, @PathVariable Long userId){
         return ResponseEntity.ok(_placeUser.CreatePlaceWithUser(placeRequestDTO, userId));
     }
 
+    //OPEN TO EVERYONE.
     @Operation(summary = "Obtener todos los lugares")
-    @GetMapping
+    @GetMapping("/all")
     public List<PlaceResponseDTO> getAllPlaces(){
         return _placeService.getPlaces();
     }
+
 
     @Operation(summary = "Buscar luar por ID")
     @GetMapping("/{placeId}")
