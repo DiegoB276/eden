@@ -3,6 +3,7 @@ package com.godiapps.places.config;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,8 @@ public class JwtService {
     private long expirationMS;
 
     private SecretKey getKey(){
-        return Jwts.SIG.HS256.key().build();
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(String username, Map<String, Object> extraClaims){

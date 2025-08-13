@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name="tbl_accounts")
@@ -24,7 +25,7 @@ public class Account {
     private String email;
     private String password;
     private Boolean isActive = false;
-    private Role role;
+    private Set<Role> role;
     private LocalDateTime creationDate;
 
     @JsonIgnore

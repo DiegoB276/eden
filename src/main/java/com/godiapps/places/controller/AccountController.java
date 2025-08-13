@@ -1,6 +1,7 @@
 package com.godiapps.places.controller;
 import com.godiapps.places.DTO.AccountRequestDTO;
-import com.godiapps.places.DTO.AccountResponseDTO;
+import com.godiapps.places.DTO.AuthRequestDTO;
+import com.godiapps.places.DTO.AuthResponseDTO;
 import com.godiapps.places.entity.Account;
 import com.godiapps.places.service.account.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,9 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Optional;
-import java.util.Set;
 
 
 @Controller
@@ -22,12 +21,19 @@ public class AccountController {
 
     @Autowired
     private AccountService _accountService;
-
     //OPEN TO EVERYBODY.
     @Operation(summary = "Registrar una nueva cuenta")
-    @PostMapping("/create")
-    public ResponseEntity<AccountResponseDTO> createAccount(@RequestBody AccountRequestDTO account){
-            return ResponseEntity.ok(_accountService.addNewAccount(account));
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponseDTO> createAccount(@RequestBody AuthRequestDTO accRequest){
+            return ResponseEntity.ok(_accountService.addNewAccount(accRequest));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody AuthRequestDTO accRequest){
+        if (_accountService.loginAccount(accRequest) == null){
+            return ResponseEntity.status(403).body("Credenciales Invalidas");
+        }
+        return ResponseEntity.ok(_accountService.loginAccount(accRequest));
     }
 
     //OPEN TO USERS

@@ -30,8 +30,11 @@ public class PlaceController {
     //OPEN TO USERS
     @Operation(summary = "Registrar un lugar nuevo")
     @PostMapping("/create/{userId}")
-    public ResponseEntity<PlaceResponseDTO> CreatePlaceWithUser(@RequestBody PlaceRequestDTO placeRequestDTO, @PathVariable Long userId){
-        return ResponseEntity.ok(_placeUser.CreatePlaceWithUser(placeRequestDTO, userId));
+    public ResponseEntity<?> CreatePlaceWithUser(@RequestBody PlaceRequestDTO placeRequestDTO, @PathVariable Long userId){
+        if(_placeUser.CreatePlaceWithUser(placeRequestDTO, userId) == null){
+            return ResponseEntity.badRequest().body("Error al agregar lugar");
+        }
+        return ResponseEntity.ok().body("Lugar agregado con éxito");
     }
 
     //OPEN TO EVERYONE.
