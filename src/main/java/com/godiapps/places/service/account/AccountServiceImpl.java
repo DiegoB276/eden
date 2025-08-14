@@ -15,11 +15,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountServiceImpl extends AccountService {
@@ -48,17 +51,23 @@ public class AccountServiceImpl extends AccountService {
 
     public AuthResponseDTO loginAccount(AuthRequestDTO accRequest){
         try{
-            Authentication auth = authManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(accRequest.getEmail(), accRequest.getPassword())
-            );
+            Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(accRequest.getEmail(), accRequest.getPassword()));
             var userDetails = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
-            System.out.println(userDetails.getUsername());
-            String token = jwtService.generateToken(userDetails.getUsername(), Map.of("roles", userDetails.getAuthorities()));
-            System.out.println(token);
-            return new AuthResponseDTO(token);
+            if(isUser(userDetails)){
+                String token = jwtService.generateToken(userDetails.getUsername(), Map.of("roles", userDetails.getAuthorities()));
+                return new AuthResponseDTO(token);
+            }
+            return null;
         }catch (BadCredentialsException e){
             return null;
         }
+    }
+
+    private boolean isUser(User userDetails){
+        return userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet())
+                .equals(Set.of(Role.USER.name()));
     }
 
 

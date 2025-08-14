@@ -37,6 +37,7 @@ public class JwtService {
                 .issuedAt(now)
                 .expiration(exp)
                 .signWith(getKey())
+                
                 .compact();
     }
 
