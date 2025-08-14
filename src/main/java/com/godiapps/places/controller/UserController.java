@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @Controller
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 @Tag(name = "Usuarios", description = "Acciones para la gestion de los usuarios.")
 public class UserController {
 
@@ -26,21 +26,24 @@ public class UserController {
     @Autowired
     private UserAccountService _userAccService;
 
+    //OPEN TO USER.
     @Operation(summary = "Registrar un nuevo usuario")
     @PostMapping("/create/{email}")
-    public void createUser(@PathVariable String email, @RequestBody User user){
+    public ResponseEntity<?> createUser(@PathVariable String email, @RequestBody User user){
         if(_userAccService.createUser(email, user)){
-            System.out.println("Se ha creado el usuario y activado la cuenta.");
-            return;
+            return ResponseEntity.ok().body("Ususario Creado y activado");
         };
-        System.out.println("Error al crear el usuario, cuenta no Activada.");
-        return;
+        return ResponseEntity.badRequest().body("Error al crear el usuario");
     }
 
+    //OPEN TO USERS.
     @Operation(summary = "Buscar un usuario por ID")
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<User>> findUserById(@PathVariable Long id){
-        return ResponseEntity.ok(_userService.findById(id));
+    public ResponseEntity<?> findUserById(@PathVariable Long id){
+        if(_userService.findById(id).isPresent()){
+            return ResponseEntity.ok(_userService.findById(id));
+        }
+        return ResponseEntity.badRequest().body("User Not found");
     }
 
 }

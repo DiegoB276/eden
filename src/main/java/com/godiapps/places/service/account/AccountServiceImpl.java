@@ -1,34 +1,74 @@
 package com.godiapps.places.service.account;
 import com.godiapps.places.DTO.AccountRequestDTO;
 import com.godiapps.places.DTO.AccountResponseDTO;
+import com.godiapps.places.DTO.AuthRequestDTO;
+import com.godiapps.places.DTO.AuthResponseDTO;
+import com.godiapps.places.config.JwtService;
 import com.godiapps.places.entity.Account;
 import com.godiapps.places.entity.Role;
 import com.godiapps.places.repository.AccountRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountServiceImpl extends AccountService {
 
     @Autowired
     private AccountRepository _accountRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private AuthenticationManager authManager;
+    @Autowired
+    private JwtService jwtService;
 
-    public AccountResponseDTO addNewAccount(AccountRequestDTO accountRequestDto){
-        Account account = new Account();
-        account.setEmail(accountRequestDto.getEmail());
-        account.setPassword(accountRequestDto.getPassword());
-        account.setCreationDate(LocalDateTime.now());
-        account.setRole(Role.VISITOR);
-        //System.out.println("Email:" + account.getEmail() + " Password: " + account.getPassword() + " Date: " + account.getCreationDate() + " Rol: " + account.getRole());
+    public AuthResponseDTO addNewAccount(AuthRequestDTO accRequest){
+        Account account = Account.builder()
+                .email(accRequest.getEmail())
+                .password(passwordEncoder.encode(accRequest.getPassword()))
+                .creationDate(LocalDateTime.now())
+                .isActive(false)
+                .role(Set.of(Role.VISITOR))
+                .build();
         _accountRepository.save(account);
-        return new AccountResponseDTO(account.getEmail(), account.getIsActive(), account.getRole(), account.getCreationDate());
+        String token = jwtService.generateToken(account.getEmail(), Map.of("roles", account.getRole()));
+        return new AuthResponseDTO(token);
     }
 
+    public AuthResponseDTO loginAccount(AuthRequestDTO accRequest){
+        try{
+            Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(accRequest.getEmail(), accRequest.getPassword()));
+            var userDetails = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
+            if(isUser(userDetails)){
+                String token = jwtService.generateToken(userDetails.getUsername(), Map.of("roles", userDetails.getAuthorities()));
+                return new AuthResponseDTO(token);
+            }
+            return null;
+        }catch (BadCredentialsException e){
+            return null;
+        }
+    }
 
+    private boolean isUser(User userDetails){
+        return userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet())
+                .equals(Set.of(Role.USER.name()));
+    }
 
 
     public int deleteAccount(Long id){
