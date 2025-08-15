@@ -2,6 +2,7 @@ package com.godiapps.places.controller;
 import com.godiapps.places.DTO.AuthRequestDTO;
 import com.godiapps.places.DTO.AuthResponseDTO;
 import com.godiapps.places.entity.Account;
+import com.godiapps.places.service.UserAccont.UserAccountService;
 import com.godiapps.places.service.account.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +22,9 @@ public class AccountController {
 
     @Autowired
     private AccountService _accountService;
+
+    @Autowired
+    private UserAccountService _userAccountService;
     //OPEN TO EVERYBODY.
     @Operation(summary = "Registrar una nueva cuenta")
     @PostMapping("/register")
@@ -32,7 +36,7 @@ public class AccountController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequestDTO accRequest) {
-        var authResponse = _accountService.loginAccount(accRequest);
+        var authResponse = _userAccountService.loginAccount(accRequest);
         if (authResponse == null) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)

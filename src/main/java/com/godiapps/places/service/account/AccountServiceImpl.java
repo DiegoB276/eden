@@ -1,12 +1,11 @@
 package com.godiapps.places.service.account;
-import com.godiapps.places.DTO.AccountRequestDTO;
-import com.godiapps.places.DTO.AccountResponseDTO;
-import com.godiapps.places.DTO.AuthRequestDTO;
-import com.godiapps.places.DTO.AuthResponseDTO;
+import com.godiapps.places.DTO.*;
 import com.godiapps.places.config.JwtService;
 import com.godiapps.places.entity.Account;
 import com.godiapps.places.entity.Role;
 import com.godiapps.places.repository.AccountRepository;
+import com.godiapps.places.service.UserAccont.UserAccountService;
+import com.godiapps.places.service.user.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,8 +32,6 @@ public class AccountServiceImpl extends AccountService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
-    private AuthenticationManager authManager;
-    @Autowired
     private JwtService jwtService;
 
     public AuthResponseDTO addNewAccount(AuthRequestDTO accRequest){
@@ -45,30 +43,12 @@ public class AccountServiceImpl extends AccountService {
                 .role(Set.of(Role.VISITOR))
                 .build();
         _accountRepository.save(account);
-        String token = jwtService.generateToken(account.getEmail(), Map.of("roles", account.getRole()));
+        String token = jwtService.generateToken(account.getEmail(), Map.of("roles", account.getRole().stream().map(Enum::name).toList()));
         return new AuthResponseDTO(token);
     }
 
-    public AuthResponseDTO loginAccount(AuthRequestDTO accRequest){
-        try{
-            Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(accRequest.getEmail(), accRequest.getPassword()));
-            var userDetails = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
-            if(isUser(userDetails)){
-                String token = jwtService.generateToken(userDetails.getUsername(), Map.of("roles", userDetails.getAuthorities()));
-                return new AuthResponseDTO(token);
-            }
-            return null;
-        }catch (BadCredentialsException e){
-            return null;
-        }
-    }
 
-    private boolean isUser(User userDetails){
-        return userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toSet())
-                .equals(Set.of(Role.USER.name()));
-    }
+
 
 
     public int deleteAccount(Long id){

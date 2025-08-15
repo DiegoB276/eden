@@ -9,4 +9,5 @@ public abstract class UserService {
     public abstract User addNewUser(User user);
 
     public abstract Optional<User> findById(Long id);
+
 }

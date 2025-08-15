@@ -15,7 +15,7 @@ public abstract class AccountService {
 
     public abstract AuthResponseDTO addNewAccount(AuthRequestDTO accRequest);
 
-    public abstract AuthResponseDTO loginAccount(AuthRequestDTO accRequest);
+    //public abstract AuthResponseDTO loginAccount(AuthRequestDTO accRequest);
 
     public abstract int deleteAccount(Long id);
 
