@@ -2,6 +2,7 @@ package com.godiapps.places.controller;
 import com.godiapps.places.DTO.AuthRequestDTO;
 import com.godiapps.places.DTO.AuthResponseDTO;
 import com.godiapps.places.entity.Account;
+import com.godiapps.places.service.UserAccont.UserAccountService;
 import com.godiapps.places.service.account.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +22,15 @@ public class AccountController {
 
     @Autowired
     private AccountService _accountService;
-    //OPEN TO EVERYBODY.
+
+    @Autowired
+    private UserAccountService _userAccountService;
+
+
+    /*
+    * OPEN TO EVERYBODY.
+    * ----------------- Create a new Account ------------------
+    */
     @Operation(summary = "Registrar una nueva cuenta")
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDTO> createAccount(@RequestBody AuthRequestDTO accRequest){
@@ -29,10 +38,13 @@ public class AccountController {
     }
 
 
-
+    /*
+    OPEN TO EVERYBODY.
+    *------------- Do login with existent account -------------------
+    */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequestDTO accRequest) {
-        var authResponse = _accountService.loginAccount(accRequest);
+        var authResponse = _userAccountService.loginAccount(accRequest);
         if (authResponse == null) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
@@ -41,23 +53,30 @@ public class AccountController {
         return ResponseEntity.ok(authResponse);
     }
 
-    //OPEN TO USERS
+
+    /*
+    *OPEN TO USERS
+    *----------------- Find account by ID -----------------------
+    */
     @Operation(summary = "Buscar cuenta por ID")
-    @GetMapping("/find/{id}")
-    public ResponseEntity<Optional<Account>> findById(@PathVariable Long id){
-        return ResponseEntity.ok(_accountService.findAccountById(id));
+    @GetMapping("/find")
+    public ResponseEntity<Optional<Account>> findAccountById(@RequestParam String email, @RequestParam(required = true) String token){
+        return ResponseEntity.ok(_accountService.findAccountById(email, token));
     }
 
-    //OPEN TO USERS
+
+    /*
+    OPEN TO USERS
+    * --------------- Delete a existent account ------------------
+    */
     @Operation(summary = "Eliminar cuenta")
-    @DeleteMapping("/delete/{id}")
-    public void deleteAccount(@PathVariable Long id){
-        if(_accountService.deleteAccount(id)==0){
+    @DeleteMapping("/delete")
+    public void deleteAccount(@RequestParam String email, @RequestParam String token){
+        if(_accountService.deleteAccount(email, token)==0){
             ResponseEntity.ok();
             return;
         }
         ResponseEntity.badRequest();
         return;
     }
-
 }

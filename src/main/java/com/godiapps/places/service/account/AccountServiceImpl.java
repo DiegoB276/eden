@@ -1,28 +1,15 @@
 package com.godiapps.places.service.account;
-import com.godiapps.places.DTO.AccountRequestDTO;
-import com.godiapps.places.DTO.AccountResponseDTO;
-import com.godiapps.places.DTO.AuthRequestDTO;
-import com.godiapps.places.DTO.AuthResponseDTO;
+import com.godiapps.places.DTO.*;
 import com.godiapps.places.config.JwtService;
 import com.godiapps.places.entity.Account;
 import com.godiapps.places.entity.Role;
 import com.godiapps.places.repository.AccountRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class AccountServiceImpl extends AccountService {
@@ -31,8 +18,6 @@ public class AccountServiceImpl extends AccountService {
     private AccountRepository _accountRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
-    private AuthenticationManager authManager;
     @Autowired
     private JwtService jwtService;
 
@@ -45,51 +30,41 @@ public class AccountServiceImpl extends AccountService {
                 .role(Set.of(Role.VISITOR))
                 .build();
         _accountRepository.save(account);
-        String token = jwtService.generateToken(account.getEmail(), Map.of("roles", account.getRole()));
+        String token = jwtService.generateToken(account.getEmail(), Map.of("roles", account.getRole().stream().map(Enum::name).toList()));
         return new AuthResponseDTO(token);
     }
 
-    public AuthResponseDTO loginAccount(AuthRequestDTO accRequest){
+
+    public int deleteAccount(String email, String token){
         try{
-            Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(accRequest.getEmail(), accRequest.getPassword()));
-            var userDetails = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
-            if(isUser(userDetails)){
-                String token = jwtService.generateToken(userDetails.getUsername(), Map.of("roles", userDetails.getAuthorities()));
-                return new AuthResponseDTO(token);
+            Optional<Account> acc = _accountRepository.findAccountByEmail(email);
+            if(jwtService.validateTokenUsername(acc.get().getEmail(), token)){
+                _accountRepository.deleteById(acc.get().getAccountId());
+                if(_accountRepository.findById(acc.get().getAccountId()).isPresent()){
+                    return 0;
+                }
             }
-            return null;
-        }catch (BadCredentialsException e){
-            return null;
+            return 1;
+        }catch (Exception e){
+            return 1;
         }
     }
 
-    private boolean isUser(User userDetails){
-        return userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toSet())
-                .equals(Set.of(Role.USER.name()));
-    }
-
-
-    public int deleteAccount(Long id){
-        _accountRepository.deleteById(id);
-        if(_accountRepository.findById(id).isPresent()){
-            return 0;
+    /*
+    * ---------- This method only used by internal API features. ----------------
+    */
+    public Optional<Account> findAccountById(String email, String token){
+        Optional<Account> acc = _accountRepository.findAccountByEmail(email);
+        if(jwtService.validateTokenUsername(acc.get().getEmail(), jwtService.extractUsername(token))){
+            return _accountRepository.findById(acc.get().getAccountId());
         }
-        return 1;
-    }
-
-    public Optional<Account> findAccountById(Long id){
-        return _accountRepository.findById(id);
+        return Optional.empty();
     }
 
     public Optional<Account> findAccountByEmail(String email){
+        Optional<Account> acc = _accountRepository.findAccountByEmail(email);
         return _accountRepository.findAccountByEmail(email);
-    }
 
-    @Transactional
-    @Override
-    public void deleteAccountWithTime(){
     }
 
     public void activateAccount(Long id){
