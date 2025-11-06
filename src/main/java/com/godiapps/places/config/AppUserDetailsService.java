@@ -1,16 +1,12 @@
 package com.godiapps.places.config;
 
 import com.godiapps.places.entity.Account;
-import com.godiapps.places.entity.User;
 import com.godiapps.places.repository.AccountRepository;
-import com.godiapps.places.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.stream.Collectors;
 
 @Service
 public class AppUserDetailsService implements UserDetailsService {

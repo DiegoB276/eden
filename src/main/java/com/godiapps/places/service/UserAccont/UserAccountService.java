@@ -1,5 +1,4 @@
 package com.godiapps.places.service.UserAccont;
-
 import com.godiapps.places.DTO.AuthRequestDTO;
 import com.godiapps.places.DTO.AuthResponseDTO;
 import com.godiapps.places.DTO.UserTokenInformationDTO;
@@ -17,7 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
@@ -39,7 +37,10 @@ public class UserAccountService {
     @Autowired
     private JwtService jwtService;
 
-    public boolean createUser(String email, User user){
+    public boolean createUser(String email, User user, String token){
+        if(!jwtService.validateTokenUsername(email, jwtService.extractUsername(token))){
+            return false;
+        }
         Optional<Account> acc = _accountService.findAccountByEmail(email);
         if (acc.isPresent() && !acc.get().getIsActive()){
             User us = _userService.addNewUser(user);
@@ -88,7 +89,7 @@ public class UserAccountService {
             Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(accRequest.getEmail(), accRequest.getPassword()));
             var userDetails = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
             if(isUser(userDetails)){
-                String token = jwtService.generateToken(userDetails.getUsername(), getUserData(userDetails));
+                String token = jwtService.generateLoginToken(userDetails.getUsername(), getUserData(userDetails));
                 return new AuthResponseDTO(token);
             }
             return null;

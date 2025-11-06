@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.godiapps</groupId>
 	<artifactId>places</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>places</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
@@ -93,8 +93,6 @@
             <version>0.12.6</version>
             <scope>runtime</scope>
         </dependency>
-
-
     </dependencies>
 
 	<build>

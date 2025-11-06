@@ -3,7 +3,6 @@ package com.godiapps.places.service.place;
 
 import com.godiapps.places.DTO.PlaceResponseDTO;
 import com.godiapps.places.entity.Place;
-
 import java.util.List;
 import java.util.Optional;
 

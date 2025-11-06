@@ -2,16 +2,11 @@ package com.godiapps.places.config;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
 import javax.crypto.SecretKey;
-import java.security.Key;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.Map;
 
@@ -23,6 +18,9 @@ public class JwtService {
 
     @Value("${jwt.expiration-ms}")
     private long expirationMS;
+
+    @Value("${EXTRA_TIME_VALUE}")
+    private long extraTimeExpiration;
 
     private SecretKey getKey(){
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
@@ -38,7 +36,18 @@ public class JwtService {
                 .issuedAt(now)
                 .expiration(exp)
                 .signWith(getKey())
+                .compact();
+    }
 
+    public String generateLoginToken(String username, Map<String, Object> extraClaims){
+        Date now = new Date();
+        Date exp = new Date(now.getTime() + expirationMS + extraTimeExpiration);
+        return Jwts.builder()
+                .claims(extraClaims)
+                .subject(username)
+                .issuedAt(now)
+                .expiration(exp)
+                .signWith(getKey())
                 .compact();
     }
 
@@ -68,5 +77,13 @@ public class JwtService {
                     .getPayload()
                     .getExpiration();
             return exp.before(new Date());
+    }
+
+    public boolean validateTokenUsername(String email, String token){
+        try {
+            return(email.equals(token));
+        }catch (Exception exception){
+            return false;
+        }
     }
 }

@@ -1,5 +1,4 @@
 package com.godiapps.places.controller;
-
 import com.godiapps.places.DTO.PlaceRequestDTO;
 import com.godiapps.places.DTO.PlaceResponseDTO;
 import com.godiapps.places.entity.Place;
@@ -27,17 +26,23 @@ public class PlaceController {
     @Autowired
     private PlaceService _placeService;
 
-    //OPEN TO USERS
+    /*
+     *OPEN TO USERS
+     *----------------- Create new place with user -----------------------
+     */
     @Operation(summary = "Registrar un lugar nuevo")
-    @PostMapping("/create/{userId}")
-    public ResponseEntity<?> CreatePlaceWithUser(@RequestBody PlaceRequestDTO placeRequestDTO, @PathVariable Long userId){
-        if(_placeUser.CreatePlaceWithUser(placeRequestDTO, userId) == null){
+    @PostMapping("/create")
+    public ResponseEntity<?> CreatePlaceWithUser(@RequestBody PlaceRequestDTO placeRequestDTO, @RequestParam Long userID, @RequestParam String token){
+        if(_placeUser.CreatePlaceWithUser(placeRequestDTO, userID, token) == null){
             return ResponseEntity.badRequest().body("Error al agregar lugar");
         }
         return ResponseEntity.ok().body("Lugar agregado con éxito");
     }
 
-    //OPEN TO EVERYONE.
+    /*
+     *OPEN TO EVERYONE
+     *----------------- Find all places -----------------------
+     */
     @Operation(summary = "Obtener todos los lugares")
     @GetMapping("/all")
     public List<PlaceResponseDTO> getAllPlaces(){
@@ -45,10 +50,14 @@ public class PlaceController {
     }
 
 
+    /*
+     *OPEN TO USERS
+     *----------------- Find place by ID -----------------------
+     */
     @Operation(summary = "Buscar luar por ID")
-    @GetMapping("/{placeId}")
-    public ResponseEntity<Optional<Place>> findPlaceById(@PathVariable Long placeId){
-        return ResponseEntity.ok(_placeService.findPlaceById(placeId));
+    @GetMapping("/find")
+    public ResponseEntity<Optional<Place>> findPlaceById(@PathVariable Long placeID){
+        return ResponseEntity.ok(_placeService.findPlaceById(placeID));
     }
 
 

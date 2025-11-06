@@ -4,25 +4,12 @@ import com.godiapps.places.config.JwtService;
 import com.godiapps.places.entity.Account;
 import com.godiapps.places.entity.Role;
 import com.godiapps.places.repository.AccountRepository;
-import com.godiapps.places.service.UserAccont.UserAccountService;
-import com.godiapps.places.service.user.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class AccountServiceImpl extends AccountService {
@@ -48,28 +35,36 @@ public class AccountServiceImpl extends AccountService {
     }
 
 
-
-
-
-    public int deleteAccount(Long id){
-        _accountRepository.deleteById(id);
-        if(_accountRepository.findById(id).isPresent()){
-            return 0;
+    public int deleteAccount(String email, String token){
+        try{
+            Optional<Account> acc = _accountRepository.findAccountByEmail(email);
+            if(jwtService.validateTokenUsername(acc.get().getEmail(), token)){
+                _accountRepository.deleteById(acc.get().getAccountId());
+                if(_accountRepository.findById(acc.get().getAccountId()).isPresent()){
+                    return 0;
+                }
+            }
+            return 1;
+        }catch (Exception e){
+            return 1;
         }
-        return 1;
     }
 
-    public Optional<Account> findAccountById(Long id){
-        return _accountRepository.findById(id);
+    /*
+    * ---------- This method only used by internal API features. ----------------
+    */
+    public Optional<Account> findAccountById(String email, String token){
+        Optional<Account> acc = _accountRepository.findAccountByEmail(email);
+        if(jwtService.validateTokenUsername(acc.get().getEmail(), jwtService.extractUsername(token))){
+            return _accountRepository.findById(acc.get().getAccountId());
+        }
+        return Optional.empty();
     }
 
     public Optional<Account> findAccountByEmail(String email){
+        Optional<Account> acc = _accountRepository.findAccountByEmail(email);
         return _accountRepository.findAccountByEmail(email);
-    }
 
-    @Transactional
-    @Override
-    public void deleteAccountWithTime(){
     }
 
     public void activateAccount(Long id){

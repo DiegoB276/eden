@@ -2,13 +2,13 @@ package com.godiapps.places.service.PlaceUser;
 
 import com.godiapps.places.DTO.PlaceRequestDTO;
 import com.godiapps.places.DTO.PlaceResponseDTO;
+import com.godiapps.places.config.JwtService;
 import com.godiapps.places.entity.Place;
 import com.godiapps.places.entity.User;
 import com.godiapps.places.service.place.PlaceService;
 import com.godiapps.places.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -21,9 +21,15 @@ public class PlaceUser {
     @Autowired
     private PlaceService _placeService;
 
-    public PlaceResponseDTO CreatePlaceWithUser(PlaceRequestDTO placeRequestDto, Long userId){
+    @Autowired
+    private JwtService jwtService;
+
+    public PlaceResponseDTO CreatePlaceWithUser(PlaceRequestDTO placeRequestDto, Long userId, String token){
         Optional<User> user = _userService.findById(userId);
         if (user.isPresent()){
+            if(!jwtService.validateTokenUsername(user.get().getAccount().getEmail(), token)){
+                return null;
+            }
             Place placeToSave =  _placeService.addNewPlace(formatDtoToPlace(placeRequestDto, new Place()));
             if (_placeService.findPlaceById(placeToSave.getPlaceId()).isPresent()){
                 placeToSave.setUser(user.get());
