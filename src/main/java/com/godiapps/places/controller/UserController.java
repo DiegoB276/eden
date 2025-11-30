@@ -47,4 +47,14 @@ public class UserController {
         return ResponseEntity.badRequest().body("User Not found");
     }
 
+    @Operation(summary = "Agregar a Favoritos")
+    @PostMapping("/addFavorites")
+    public ResponseEntity<?> addToFavorites(@RequestParam Long userID, @RequestParam Long placeID, @RequestParam String token){
+        try{
+            return ResponseEntity.ok(_userService.addPlaceToFavorites(userID, placeID, token));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }
