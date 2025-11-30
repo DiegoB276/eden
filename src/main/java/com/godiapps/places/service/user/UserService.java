@@ -10,4 +10,5 @@ public abstract class UserService {
 
     public abstract Optional<User> findById(Long id);
 
+    public abstract boolean addPlaceToFavorites(Long userID, Long placeID, String token);
 }

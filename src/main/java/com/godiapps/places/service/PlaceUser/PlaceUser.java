@@ -28,12 +28,14 @@ public class PlaceUser {
         Optional<User> user = _userService.findById(userId);
         if (user.isPresent()){
             if(!jwtService.validateTokenUsername(user.get().getAccount().getEmail(), token)){
+                System.out.println("sdfdsf 1");
                 return null;
             }
             Place placeToSave =  _placeService.addNewPlace(formatDtoToPlace(placeRequestDto, new Place()));
             if (_placeService.findPlaceById(placeToSave.getPlaceId()).isPresent()){
                 placeToSave.setUser(user.get());
                 _placeService.addNewPlace(placeToSave);
+                System.out.println("sdfdsf 2");
                 return PlaceResponseDTO.builder()
                         .name(placeToSave.getName())
                         .description(placeToSave.getDescription())
@@ -53,6 +55,7 @@ public class PlaceUser {
 
             }
         }
+        System.out.println("sdfdsf 3");
         return null;
     }
 
